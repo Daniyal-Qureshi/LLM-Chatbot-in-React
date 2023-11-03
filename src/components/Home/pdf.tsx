@@ -1,12 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { Document, Page, pdfjs } from "react-pdf";
-import PropTypes, { InferProps } from "prop-types";
-import { useToaster } from "../../Toaster/ToastProvider";
-
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.js",
-  import.meta.url
-).toString();
+import React, { useState, useEffect } from 'react';
+import { pdfjs } from 'react-pdf';
+import PropTypes, { InferProps } from 'prop-types';
+import { useToaster } from '../../Toaster/ToastProvider';
 
 const ComponentPropTypes = {
   setPromptText: PropTypes.func.isRequired,
@@ -14,6 +9,10 @@ const ComponentPropTypes = {
 type ComponentTypes = InferProps<typeof ComponentPropTypes>;
 
 export default function PdfExtraction({ setPromptText }: ComponentTypes) {
+  useEffect(() => {
+    pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }, []);
+
   const [loading, setLoading] = useState(false);
   const notification = useToaster();
   const extractTextFromPDF = async (selectedFile: any) => {
@@ -24,15 +23,15 @@ export default function PdfExtraction({ setPromptText }: ComponentTypes) {
           const pdfData = new Uint8Array(event.target?.result as ArrayBuffer);
           const pdf = await pdfjs.getDocument({ data: pdfData }).promise;
 
-          let fullText = "";
+          let fullText = '';
 
           for (let i = 1; i <= pdf.numPages; i++) {
             const pdfPage = await pdf.getPage(i);
             const textContent = await pdfPage.getTextContent();
-            const items = textContent.items;
+            const { items } = textContent;
 
             for (let j = 0; j < items.length; j++) {
-              let value: any = items[j];
+              const value: any = items[j];
               fullText += value.str;
             }
           }
@@ -41,9 +40,9 @@ export default function PdfExtraction({ setPromptText }: ComponentTypes) {
           setLoading(false);
           setPromptText(fullText);
         } catch (error) {
-          console.error("Error loading PDF:", error);
+          console.error('Error loading PDF:', error);
           setLoading(false);
-          notification.showToaster("Something went wrong", "error");
+          notification.showToaster('Something went wrong', 'error');
         }
       };
       reader.readAsArrayBuffer(selectedFile);

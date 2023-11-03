@@ -1,16 +1,14 @@
-import React, { useEffect } from "react";
-import { supabase } from "../../Helper/helper";
-import { redirect } from "react-router-dom";
-import { BsDatabase } from "react-icons/bs";
-import Form from "./Form";
-import { useToaster } from "../../Toaster/ToastProvider";
+import React, { useEffect } from 'react';
+import { BsDatabase } from 'react-icons/bs';
+import Form from './Form';
+import { useToaster } from '../../Toaster/ToastProvider';
 
 export default function Dataset() {
   const notification = useToaster();
   useEffect(() => {
     notification.showToaster(
-      "Make Sure to have Admin Role in Supabase",
-      "info"
+      'Make Sure to have Admin Role in Supabase',
+      'info',
     );
   }, []);
   return (

@@ -1,92 +1,32 @@
-import React, { useRef, useState } from "react";
-import { BsRobot } from "react-icons/bs";
-import { PiSealQuestionThin } from "react-icons/pi";
-import { stripIndent, oneLine } from "common-tags";
-import { supabase } from "../../Helper/helper";
-import { Button } from "../shared/button";
-import { Input } from "../shared/input";
-import { embeddings } from "../../Helper/embedding";
-import chat from "../../Helper/chat";
-import PdfExtraction from "./pdf";
-import { Link, Navigate, redirect, useNavigate } from "react-router-dom";
-import { useSignOut } from "react-auth-kit";
+import React, { useRef, useState } from 'react';
+import { BsRobot } from 'react-icons/bs';
+import { PiSealQuestionThin } from 'react-icons/pi';
+import { stripIndent, oneLine } from 'common-tags';
+import {
+  useNavigate,
+} from 'react-router-dom';
+import { useSignOut } from 'react-auth-kit';
+import { supabase } from '../../Helper/helper';
+import { Button } from '../shared/button';
+import { Input } from '../shared/input';
+import { embeddings } from '../../Helper/embedding';
+import chat from '../../Helper/chat';
+import PdfExtraction from './pdf';
+import { useToaster } from '../../Toaster/ToastProvider';
 
-function Home() {
+function HomeComponent() {
   const inputRef = useRef() as React.MutableRefObject<HTMLInputElement>;
   const [questions, setQuestion] = useState<string[]>([]);
   const [answers, setAnswer] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const signOut = useSignOut();
+  const notification = useToaster();
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     signOut();
-    navigate("/signin");
-  };
-
-  const toastError = (message = "Something went wrong") => {};
-
-  const handleSearch = async () => {
-    setLoading(true);
-    const searchText = inputRef.current.value;
-
-    if (searchText && searchText.trim()) {
-      setQuestion((currentQuestion) => [...currentQuestion, searchText]);
-      const res = await embeddings(searchText);
-      if (res.status !== 200) {
-        toastError();
-      } else {
-        console.log("res from embeddings is ", res);
-        const data = await res.json();
-        console.log("Data is ", data);
-        const response = await supabase.rpc("match_documents", {
-          query_embedding: data.embedding,
-          match_threshold: 0.5,
-          match_count: 1,
-        });
-
-        console.log(response);
-        const documents: any = response.data;
-
-        let tokenCount = 0;
-        let contextText = "";
-        for (let i = 0; i < documents.length; i++) {
-          const document = documents[i];
-          const content = document.content;
-          tokenCount += document.token;
-
-          if (tokenCount > 1500) {
-            break;
-          }
-          contextText += `${content.trim()}\n--\n`;
-        }
-        if (contextText) {
-          const prompt = generatePrompt(contextText, searchText);
-          await generateAnswer(prompt);
-        } else {
-          setAnswer((currentAnswer) => [
-            ...currentAnswer,
-            "Sorry there is no context related to this question",
-          ]);
-        }
-      }
-    }
-    inputRef.current.value = "";
-    setLoading(false);
-  };
-  const generateAnswer = async (prompt: string) => {
-    const res = await chat(prompt);
-    if (res.status !== 200) {
-      toastError();
-    } else {
-      const data = await res.json();
-      setAnswer((currentAnswer) => [...currentAnswer, data.choices[0].text]);
-    }
-  };
-
-  const setPromptText = (text: string) => {
-    inputRef.current.value = text;
+    navigate('/signin');
   };
 
   const generatePrompt = (contextText: string, searchText: string) => {
@@ -110,6 +50,69 @@ function Home() {
     return prompt;
   };
 
+  const generateAnswer = async (prompt: string) => {
+    const res = await chat(prompt);
+    if (res.status !== 200) {
+      notification.showToaster('Something went wrong', 'error');
+    } else {
+      const data = await res.json();
+      setAnswer((currentAnswer) => [...currentAnswer, data.choices[0].text]);
+    }
+  };
+
+  const handleSearch = async () => {
+    setLoading(true);
+    const searchText = inputRef.current.value;
+
+    if (searchText && searchText.trim()) {
+      setQuestion((currentQuestion) => [...currentQuestion, searchText]);
+      const res = await embeddings(searchText);
+      if (res.status !== 200) {
+        notification.showToaster('Something went wrong', 'error');
+      } else {
+        console.log('res from embeddings is ', res);
+        const data = await res.json();
+        console.log('Data is ', data);
+        const response = await supabase.rpc('match_documents', {
+          query_embedding: data.embedding,
+          match_threshold: 0.5,
+          match_count: 1,
+        });
+
+        console.log(response);
+        const documents: any = response.data;
+
+        let tokenCount = 0;
+        let contextText = '';
+        for (let i = 0; i < documents.length; i++) {
+          const document = documents[i];
+          const { content } = document;
+          tokenCount += document.token;
+
+          if (tokenCount > 1500) {
+            break;
+          }
+          contextText += `${content.trim()}\n--\n`;
+        }
+        if (contextText) {
+          const prompt = generatePrompt(contextText, searchText);
+          await generateAnswer(prompt);
+        } else {
+          setAnswer((currentAnswer) => [
+            ...currentAnswer,
+            'Sorry there is no context related to this question',
+          ]);
+        }
+      }
+    }
+    inputRef.current.value = '';
+    setLoading(false);
+  };
+
+  const setPromptText = (text: string) => {
+    inputRef.current.value = text;
+  };
+
   return (
     <div className="flex justify-center w-screen h-screen p-2">
       <div className="w-1/2">
@@ -126,7 +129,7 @@ function Home() {
               <Button
                 className="ml-3 text-white bg-gray-900"
                 onClick={() => {
-                  navigate("/dataset");
+                  navigate('/dataset');
                 }}
               >
                 Add Dataset
@@ -158,7 +161,7 @@ function Home() {
           placeholder="Ask your question"
           className="p-5 mt-3 text-white"
           onKeyDown={(e) => {
-            if (e.key === "Enter") {
+            if (e.key === 'Enter') {
               handleSearch();
             }
           }}
@@ -168,5 +171,4 @@ function Home() {
     </div>
   );
 }
-
-export default Home;
+export default HomeComponent;

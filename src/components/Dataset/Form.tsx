@@ -1,12 +1,13 @@
-"use client";
-import React, { useRef, useState } from "react";
-import { Textarea } from "../shared/textarea";
-import { Button } from "../shared/button";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
-import { supabase } from "../../Helper/helper";
-import { embeddings } from "../../Helper/embedding";
-import { useToaster } from "../../Toaster/ToastProvider";
-import { useNavigate } from "react-router-dom";
+'use client';
+
+import React, { useRef, useState } from 'react';
+import { AiOutlineLoading3Quarters } from 'react-icons/ai';
+import { useNavigate } from 'react-router-dom';
+import { Textarea } from '../shared/textarea';
+import { Button } from '../shared/button';
+import { supabase } from '../../Helper/helper';
+import { embeddings } from '../../Helper/embedding';
+import { useToaster } from '../../Toaster/ToastProvider';
 
 export default function Form() {
   const inputRef = useRef() as React.MutableRefObject<HTMLTextAreaElement>;
@@ -16,29 +17,29 @@ export default function Form() {
   const navigate = useNavigate();
   const handleSubmit = async () => {
     setLoading(true);
-    const content = inputRef.current.value.replace(/\n/g, " ");
+    const content = inputRef.current.value.replace(/\n/g, ' ');
 
     if (content && content.trim()) {
       const res = await embeddings(content);
 
       if (res.status !== 200) {
-        notification.showToaster("Something went wrong", "error");
+        notification.showToaster('Something went wrong', 'error');
       } else {
         const result = await res.json();
 
-        const embedding = result.embedding;
-        const token = result.token;
+        const { embedding } = result;
+        const { token } = result;
 
-        const { error } = await supabase.from("documents").insert({
+        const { error } = await supabase.from('documents').insert({
           content,
           embedding,
           token,
         });
         if (error) {
-          notification.showToaster(error.message, "error");
+          notification.showToaster(error.message, 'error');
         } else {
-          notification.showToaster("Dataset added successfully", "success");
-          inputRef.current.value = "";
+          notification.showToaster('Dataset added successfully', 'success');
+          inputRef.current.value = '';
         }
       }
     }
@@ -49,7 +50,7 @@ export default function Form() {
     <>
       <Button
         className="w-half text-white bg-gray-900"
-        onClick={() => navigate("/")}
+        onClick={() => navigate('/')}
       >
         Home
       </Button>

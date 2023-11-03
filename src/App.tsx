@@ -1,12 +1,14 @@
 // App.js
 
-import React from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import LoginComponent from "./components/Login";
-import SignupComponent from "./components/Signup/index";
-import Home from "./components/Home";
-import { RequireAuth, useIsAuthenticated } from "react-auth-kit";
-import Dataset from "./components/Dataset";
+import React from 'react';
+import {
+  BrowserRouter, Routes, Route, Navigate,
+} from 'react-router-dom';
+import { RequireAuth, useIsAuthenticated } from 'react-auth-kit';
+import LoginComponent from './components/Login';
+import SignupComponent from './components/Signup/index';
+import HomeComponent from './components/Home';
+import Dataset from './components/Dataset';
 
 function App() {
   const isAuthenticated = useIsAuthenticated();
@@ -17,29 +19,29 @@ function App() {
         <Route
           path="/signin"
           element={isAuthenticated() ? <Navigate to="/" /> : <LoginComponent />}
-        ></Route>
+        />
         <Route
           path="/signup"
           element={
             isAuthenticated() ? <Navigate to="/" /> : <SignupComponent />
           }
-        ></Route>
+        />
         <Route
           path="/"
-          element={
+          element={(
             <RequireAuth loginPath="/signin">
-              <Home />
+              <HomeComponent />
             </RequireAuth>
-          }
-        ></Route>
+          )}
+        />
         <Route
           path="/dataset"
-          element={
+          element={(
             <RequireAuth loginPath="/signin">
               <Dataset />
             </RequireAuth>
-          }
-        ></Route>
+          )}
+        />
       </Routes>
     </BrowserRouter>
   );

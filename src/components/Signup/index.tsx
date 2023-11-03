@@ -1,18 +1,18 @@
-"use client";
-import React, { useState } from "react";
-import Form from "../shared/Form";
-import { ToastType, supabase } from "../../Helper/helper";
-import { useNavigate } from "react-router-dom";
-import { Button } from "../shared/button";
-import { useToast } from "react-toastify";
-import { useToaster } from "../../Toaster/ToastProvider";
+'use client';
+
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import Form from '../shared/Form';
+import { supabase } from '../../Helper/helper';
+import { Button } from '../shared/button';
+import { useToaster } from '../../Toaster/ToastProvider';
 
 export default function SignupComponent() {
   const navigate = useNavigate();
   const notification = useToaster();
 
   const handleSignup = async (email: string, password: string) => {
-    let { data, error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
     });
@@ -20,13 +20,13 @@ export default function SignupComponent() {
     console.log(error);
     console.log(data);
     if (error) {
-      notification.showToaster(error.message, "error");
+      notification.showToaster(error.message, 'error');
     } else {
       notification.showToaster(
-        "Account created successfully verify your email",
-        "success"
+        'Account created successfully verify your email',
+        'success',
       );
-      navigate("/");
+      navigate('/');
     }
   };
 
@@ -46,7 +46,7 @@ export default function SignupComponent() {
           <Button
             className="w-25 mt-3 bg-gray-900 text-white"
             onClick={() => {
-              navigate("/signin");
+              navigate('/signin');
             }}
           >
             Login

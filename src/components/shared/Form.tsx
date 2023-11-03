@@ -1,10 +1,11 @@
-import React from "react";
-import { Input } from "./input";
-import { Button } from "./button";
+import React from 'react';
+import { Input } from './input';
+import { Button } from './button';
 
-function Form(props: any) {
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
+function Form({ submitText, callback }:
+  {submitText: string, callback: (email: string, password: string) => void}) {
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
 
   return (
     <div className="mt-3">
@@ -25,9 +26,9 @@ function Form(props: any) {
       <Button
         className="w-full bg-gray-700 mt-3 text-white
         "
-        onClick={() => props.callback(email, password)}
+        onClick={() => callback(email, password)}
       >
-        {props.submitText}
+        {submitText}
       </Button>
     </div>
   );

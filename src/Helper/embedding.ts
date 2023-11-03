@@ -1,23 +1,6 @@
 import { openai } from "./helper";
 
 export async function embeddings(text: string) {
-  // const isAuth = cookies().get("supabase-auth-token");
-
-  // if (!isAuth) {
-  // 	return NextResponse.json({ message: "Unathorize" }, { status: 403 });
-  // }
-
-  //   const request = await req.json();
-  //   console.log("here");
-  //   if (!request?.text) {
-  //     return NextResponse.json(
-  //       {
-  //         message: "Invalid request missing key.",
-  //       },
-  //       { status: 422 }
-  //     );
-  //   }
-
   try {
     const result = await openai.embeddings.create({
       input: text,

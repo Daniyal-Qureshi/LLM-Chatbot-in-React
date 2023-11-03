@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import PropTypes, { InferProps } from "prop-types";
+import { useToaster } from "../../Toaster/ToastProvider";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.js",
@@ -13,8 +14,8 @@ const ComponentPropTypes = {
 type ComponentTypes = InferProps<typeof ComponentPropTypes>;
 
 export default function PdfExtraction({ setPromptText }: ComponentTypes) {
-  const [text, setText] = useState<string>(""); // To store the extracted text
   const [loading, setLoading] = useState(false);
+  const notification = useToaster();
   const extractTextFromPDF = async (selectedFile: any) => {
     if (selectedFile) {
       const reader = new FileReader();
@@ -37,13 +38,12 @@ export default function PdfExtraction({ setPromptText }: ComponentTypes) {
           }
 
           console.log(fullText);
-          setText(fullText);
           setLoading(false);
           setPromptText(fullText);
         } catch (error) {
           console.error("Error loading PDF:", error);
           setLoading(false);
-          setPromptText(error);
+          notification.showToaster("Something went wrong", "error");
         }
       };
       reader.readAsArrayBuffer(selectedFile);

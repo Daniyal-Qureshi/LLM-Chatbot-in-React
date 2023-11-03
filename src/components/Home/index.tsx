@@ -7,17 +7,22 @@ import { Button } from "../shared/button";
 import { Input } from "../shared/input";
 import { embeddings } from "../../Helper/embedding";
 import chat from "../../Helper/chat";
-import { useEffect } from "react";
 import PdfExtraction from "./pdf";
+import { Link, Navigate, redirect, useNavigate } from "react-router-dom";
+import { useSignOut } from "react-auth-kit";
 
-export default function Home() {
+function Home() {
   const inputRef = useRef() as React.MutableRefObject<HTMLInputElement>;
   const [questions, setQuestion] = useState<string[]>([]);
   const [answers, setAnswer] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const signOut = useSignOut();
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    signOut();
+    navigate("/signin");
   };
 
   const toastError = (message = "Something went wrong") => {};
@@ -29,21 +34,21 @@ export default function Home() {
     if (searchText && searchText.trim()) {
       setQuestion((currentQuestion) => [...currentQuestion, searchText]);
       const res = await embeddings(searchText);
-      console.log(res);
       if (res.status !== 200) {
         toastError();
       } else {
+        console.log("res from embeddings is ", res);
         const data = await res.json();
-        console.log(data);
-
+        console.log("Data is ", data);
         const response = await supabase.rpc("match_documents", {
           query_embedding: data.embedding,
           match_threshold: 0.5,
           match_count: 1,
         });
-        const documents: any = [];
 
         console.log(response);
+        const documents: any = response.data;
+
         let tokenCount = 0;
         let contextText = "";
         for (let i = 0; i < documents.length; i++) {
@@ -62,7 +67,7 @@ export default function Home() {
         } else {
           setAnswer((currentAnswer) => [
             ...currentAnswer,
-            "Sorry there is no context related to this question. Please ask something about Sokheng",
+            "Sorry there is no context related to this question",
           ]);
         }
       }
@@ -105,22 +110,28 @@ export default function Home() {
     return prompt;
   };
 
-  const fileHanler = (e: any) => {
-    const file = e.target.files[0];
-    const fileReader = new FileReader();
-    fileReader.onload = function () {};
-  };
-
   return (
-    <div className="flex justify-center w-screen p-2">
+    <div className="flex justify-center w-screen h-screen p-2">
       <div className="w-1/2">
         <div className="flex-1 h-80vh overflow-y-auto space-y-10">
           <div className="flex items-center justify-between border-b pb-3">
             <div className="flex items-center gap-2">
               <BsRobot className="w-5 h-5" />
-              <h1>Daily AI</h1>
+              <h1 className="text-white">Your CHATBOT</h1>
             </div>
-            <Button onClick={handleLogout}>Logout</Button>
+            <div>
+              <Button onClick={handleLogout} className="text-white bg-gray-900">
+                Logout
+              </Button>
+              <Button
+                className="ml-3 text-white bg-gray-900"
+                onClick={() => {
+                  navigate("/dataset");
+                }}
+              >
+                Add Dataset
+              </Button>
+            </div>
           </div>
           {questions.map((question, index) => {
             const answer = answers[index];
@@ -131,17 +142,21 @@ export default function Home() {
               <div className="space-y-3" key={index}>
                 <div className="flex items-center gap-2 text-indigo-500">
                   <PiSealQuestionThin className="w-5 h-5" />
-                  <h1>{question}</h1>
+                  <h1 className="text-white">{question}</h1>
                 </div>
-                {isLoading ? <h1>Loading...</h1> : <p>{answer}</p>}
+                {isLoading ? (
+                  <h1 className="text-white">Loading...</h1>
+                ) : (
+                  <p className="text-white">{answer}</p>
+                )}
               </div>
             );
           })}
         </div>
         <Input
           ref={inputRef}
-          placeholder="Ask daily ai a question"
-          className="p-5"
+          placeholder="Ask your question"
+          className="p-5 mt-3 text-white"
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               handleSearch();
@@ -153,3 +168,5 @@ export default function Home() {
     </div>
   );
 }
+
+export default Home;

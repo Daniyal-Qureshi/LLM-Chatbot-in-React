@@ -7,22 +7,23 @@ function Form(props: any) {
   const [password, setPassword] = React.useState("");
 
   return (
-    <div>
+    <div className="mt-3">
       <Input
         placeholder="Email"
         value={email}
+        className="text-white"
         onChange={(e) => setEmail(e.target.value)}
       />
       <Input
         placeholder="Password"
         value={password}
         type="password"
-        className="mt-3"
+        className="mt-3 text-white"
         onChange={(e) => setPassword(e.target.value)}
       />
 
       <Button
-        className="w-full bg-indigo-500 mt-3 text-white
+        className="w-full bg-gray-700 mt-3 text-white
         "
         onClick={() => props.callback(email, password)}
       >

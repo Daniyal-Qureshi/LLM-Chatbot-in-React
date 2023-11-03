@@ -1,17 +1,20 @@
 "use client";
 import React, { useState } from "react";
 import Form from "../shared/Form";
-import { createClient } from "@supabase/supabase-js";
-import Toaster from "../shared/toaster";
 import { ToastType, supabase } from "../../Helper/helper";
 import { Button } from "../shared/button";
 import { useNavigate } from "react-router-dom";
+import { useSignIn } from "react-auth-kit";
+import { useToast } from "react-toastify";
+import { useToaster } from "../../Toaster/ToastProvider";
 
-export default function LoginComponent() {
+function LoginComponent() {
   const navigate = useNavigate();
   const [toaster, showToaster] = useState(false);
   const [message, setMessage] = useState("");
   const [type, setType] = useState<ToastType>("error");
+  const signIn = useSignIn();
+  const notification = useToaster();
 
   const handleSignIn = async (email: string, password: string) => {
     let { data, error } = await supabase.auth.signInWithPassword({
@@ -20,31 +23,31 @@ export default function LoginComponent() {
     });
 
     if (error) {
-      setType("error");
-      setMessage(error.message);
-      showToaster(true);
+      notification.showToaster(error.message, "error");
     } else {
-      navigate("/home");
+      signIn({
+        token: data.session?.access_token ?? "",
+        expiresIn: 3600,
+        tokenType: "Bearer",
+        authState: { email },
+      });
+      navigate("/");
     }
   };
 
   return (
     <div>
-      {toaster && <Toaster type={type} message={message} />}
       <div className=" w-full h-screen flex justify-center items-center">
         <div className="w-96 border shadow-sm p-5 rounded-sm space-y-3">
-          <h1 className=" font-bold text-lg">{"Welcome to Daily's AI"}</h1>
-          <p className="text-sm">
-            It is platform that build using Supabase and Chatgpt's API to create
-            a ChatGPT like that can answer with our own knowledeg base
-          </p>
+          <h1 className="font-bold text-lg text-white">Login to Chatbot</h1>
+
           <Form
             submitText="Sign in with Email and Password"
             callback={handleSignIn}
           />
           <h1> Don't have an account consider</h1>
           <Button
-            className="w-25 mt-3 bg-black text-white"
+            className="w-25 mt-3 bg-gray-900 text-white"
             onClick={() => {
               navigate("/signup");
             }}
@@ -56,3 +59,5 @@ export default function LoginComponent() {
     </div>
   );
 }
+
+export default LoginComponent;

@@ -1,25 +1,47 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+// App.js
+
+import React from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import LoginComponent from "./components/Login";
+import SignupComponent from "./components/Signup/index";
+import Home from "./components/Home";
+import { RequireAuth, useIsAuthenticated } from "react-auth-kit";
+import Dataset from "./components/Dataset";
 
 function App() {
+  const isAuthenticated = useIsAuthenticated();
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/signin"
+          element={isAuthenticated() ? <Navigate to="/" /> : <LoginComponent />}
+        ></Route>
+        <Route
+          path="/signup"
+          element={
+            isAuthenticated() ? <Navigate to="/" /> : <SignupComponent />
+          }
+        ></Route>
+        <Route
+          path="/"
+          element={
+            <RequireAuth loginPath="/signin">
+              <Home />
+            </RequireAuth>
+          }
+        ></Route>
+        <Route
+          path="/dataset"
+          element={
+            <RequireAuth loginPath="/signin">
+              <Dataset />
+            </RequireAuth>
+          }
+        ></Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 

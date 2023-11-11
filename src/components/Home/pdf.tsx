@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { pdfjs } from 'react-pdf';
-import PropTypes, { InferProps } from 'prop-types';
-import { useToaster } from '../../Toaster/ToastProvider';
+import React, { useState, useEffect } from "react";
+import { pdfjs } from "react-pdf";
+import PropTypes, { InferProps } from "prop-types";
+import { useToaster } from "../../Toaster/ToastProvider";
+import ProgressBar from "@ramonak/react-progress-bar";
 
 const ComponentPropTypes = {
   setPromptText: PropTypes.func.isRequired,
@@ -10,11 +11,14 @@ type ComponentTypes = InferProps<typeof ComponentPropTypes>;
 
 export default function PdfExtraction({ setPromptText }: ComponentTypes) {
   useEffect(() => {
-    pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    pdfjs.GlobalWorkerOptions.workerSrc =
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
   }, []);
 
   const [loading, setLoading] = useState(false);
   const notification = useToaster();
+  const [progress, setProgress] = useState(0); // Step 2
+
   const extractTextFromPDF = async (selectedFile: any) => {
     if (selectedFile) {
       const reader = new FileReader();
@@ -23,7 +27,7 @@ export default function PdfExtraction({ setPromptText }: ComponentTypes) {
           const pdfData = new Uint8Array(event.target?.result as ArrayBuffer);
           const pdf = await pdfjs.getDocument({ data: pdfData }).promise;
 
-          let fullText = '';
+          let fullText = "";
 
           for (let i = 1; i <= pdf.numPages; i++) {
             const pdfPage = await pdf.getPage(i);
@@ -40,9 +44,9 @@ export default function PdfExtraction({ setPromptText }: ComponentTypes) {
           setLoading(false);
           setPromptText(fullText);
         } catch (error) {
-          console.error('Error loading PDF:', error);
+          console.error("Error loading PDF:", error);
           setLoading(false);
-          notification.showToaster('Something went wrong', 'error');
+          notification.showToaster("Something went wrong", "error");
         }
       };
       reader.readAsArrayBuffer(selectedFile);
@@ -68,7 +72,7 @@ export default function PdfExtraction({ setPromptText }: ComponentTypes) {
       />
       {loading && (
         <div className="flex justify-start mt-2">
-          <h2> Extracting the text please wait... </h2>
+          <h2 className="text-white"> Extracting the text please wait... </h2>
           <svg
             aria-hidden="true"
             className="w-7 h-7 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"

@@ -1,10 +1,10 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useSignIn } from 'react-auth-kit';
-import Form from '../shared/Form';
-import { supabase } from '../../Helper/helper';
-import { Button } from '../shared/button';
-import { useToaster } from '../../Toaster/ToastProvider';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { useSignIn } from "react-auth-kit";
+import Form from "../shared/Form";
+import { supabase } from "../../Helper/helper";
+import { Button } from "../shared/button";
+import { useToaster } from "../../Toaster/ToastProvider";
 
 function LoginComponent() {
   const navigate = useNavigate();
@@ -18,15 +18,15 @@ function LoginComponent() {
     });
 
     if (error) {
-      notification.showToaster(error.message, 'error');
+      notification.showToaster(error.message, "error");
     } else {
       signIn({
-        token: data.session?.access_token ?? '',
+        token: data.session?.access_token ?? "",
         expiresIn: 3600,
-        tokenType: 'Bearer',
+        tokenType: "Bearer",
         authState: { email },
       });
-      navigate('/');
+      navigate("/dataset");
     }
   };
 
@@ -44,7 +44,7 @@ function LoginComponent() {
           <Button
             className="w-25 mt-3 bg-gray-900 text-white"
             onClick={() => {
-              navigate('/signup');
+              navigate("/signup");
             }}
           >
             Sign up

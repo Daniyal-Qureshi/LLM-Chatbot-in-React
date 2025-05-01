@@ -2,9 +2,13 @@ import { openai } from './helper';
 
 export default async function chat(prompt: string) {
   try {
-    const res = await openai.completions.create({
-      prompt,
-      model: 'text-davinci-003',
+    // Update the endpoint to use the chat completion API
+    const res = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo", // or gpt-4 if you're using that
+      messages: [
+        { role: "system", content: "You are a helpful assistant." },
+        { role: "user", content: prompt },
+      ],
       max_tokens: 512,
       temperature: 0,
     });

@@ -54,7 +54,7 @@ function HomeComponent() {
       notification.showToaster("Something went wrong", "error");
     } else {
       const data = await res.json();
-      setAnswer((currentAnswer) => [...currentAnswer, data.choices[0].text]);
+      setAnswer((currentAnswer) => [...currentAnswer, data.choices[0].message.content]);
     }
   };
 
@@ -77,7 +77,6 @@ function HomeComponent() {
           match_count: 10,
         });
 
-        console.log(response);
         const documents: any = response.data;
 
         let tokenCount = 0;
